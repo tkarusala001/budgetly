@@ -9,7 +9,7 @@ const getFinancialAdvice = async (totalBudget, totalIncome, totalSpend) => {
 
   try {
     // Initialize the model (using Gemini-Pro for text generation)
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     // Calculate some financial metrics
     const savingsRate = ((totalIncome - totalSpend) / totalIncome * 100).toFixed(2);
@@ -21,9 +21,9 @@ const getFinancialAdvice = async (totalBudget, totalIncome, totalSpend) => {
       As a financial advisor, analyze these financial metrics and provide specific, actionable advice:
 
       Current Financial Situation:
-      - Monthly Budget Allocation: $${totalBudget}
-      - Monthly Income: $${totalIncome}
-      - Monthly Expenses: $${totalSpend}
+      -  Budget Allocation: $${totalBudget}
+      -  Income: $${totalIncome}
+      -  Expenses: $${totalSpend}
       - Current Savings Rate: ${savingsRate}%
       - Budget Utilization: ${budgetUtilization}%
       - Discretionary Income: $${monthlyDiscretionary}

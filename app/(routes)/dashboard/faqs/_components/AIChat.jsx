@@ -78,7 +78,7 @@ Contact Support: support@budgetly.com
 
   // Initialize Gemini AI
   const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro"});
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash"});
 
   // Scroll to bottom of chat when messages change
   useEffect(() => {

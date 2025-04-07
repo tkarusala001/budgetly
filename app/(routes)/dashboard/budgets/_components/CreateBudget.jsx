@@ -1,127 +1,157 @@
 "use client";
-import React, { useState } from "react"; // Importing React and useState hook
+import React, { useState } from "react";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"; // Importing dialog components
-import EmojiPicker from "emoji-picker-react"; // Importing emoji picker for budget icon selection
-import { Button } from "@/components/ui/button"; // Importing button component
-import { Input } from "@/components/ui/input"; // Importing input component for text fields
-import { db } from "@/utils/dbConfig"; // Importing database config
-import { Budgets } from "@/utils/schema"; // Importing Budgets schema to interact with database
-import { useUser } from "@clerk/nextjs"; // Importing Clerk hook to manage user authentication
-import { toast } from "sonner"; // Importing toast notifications
+} from "@/components/ui/dialog";
+import EmojiPicker from "emoji-picker-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { db } from "@/utils/dbConfig";
+import { Budgets } from "@/utils/schema";
+import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
+import { AlertCircle } from "lucide-react";
 
 // CreateBudget component to handle budget creation
 function CreateBudget({ refreshData }) {
-  const [emojiIcon, setEmojiIcon] = useState("😀"); // State for the selected emoji icon
-  const [openEmojiPicker, setOpenEmojiPicker] = useState(false); // State to manage emoji picker visibility
+  const [emojiIcon, setEmojiIcon] = useState("😀");
+  const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
-  const [name, setName] = useState(); // State for the budget name
-  const [amount, setAmount] = useState(); // State for the budget amount
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [amountError, setAmountError] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { user } = useUser(); // Hook to get the current user data
+  const { user } = useUser();
+
+  /**
+   * Function to validate the amount input
+   * Shows error if the input is not a valid number
+   */
+  const validateAmount = (value) => {
+    setAmount(value);
+    // Remove the error if the field is empty or contains a valid number
+    if (value === "" || !isNaN(value)) {
+      setAmountError(false);
+    }
+  };
+
+  /**
+   * Reset the form to initial values
+   */
+  const resetForm = () => {
+    setName("");
+    setAmount("");
+    setEmojiIcon("😀");
+    setAmountError(false);
+  };
 
   /**
    * Function to create a new budget
-   * Inserts the budget data into the database and triggers a refresh
+   * Validates input before inserting to database
    */
   const onCreateBudget = async () => {
+    // Check if amount is a valid number
+    if (isNaN(amount) || amount === "") {
+      setAmountError(true);
+      return;
+    }
+
     // Insert the new budget into the database
     const result = await db
-      .insert(Budgets) // Interacting with the Budgets schema in the database
+      .insert(Budgets)
       .values({
-        name: name, // Budget name entered by the user
-        amount: amount, // Budget amount entered by the user
-        createdBy: user?.primaryEmailAddress?.emailAddress, // User who is creating the budget
-        icon: emojiIcon, // Selected emoji for the budget
+        name: name,
+        amount: parseFloat(amount), // Convert string to number
+        createdBy: user?.primaryEmailAddress?.emailAddress,
+        icon: emojiIcon,
       })
-      .returning({ insertedId: Budgets.id }); // Return the inserted budget's ID
+      .returning({ insertedId: Budgets.id });
 
     // If the result is successful, refresh the data and show a success message
     if (result) {
-      refreshData(); // Refresh the parent component's data
-      toast("New Budget Created!"); // Display a toast notification
+      refreshData();
+      toast("New Budget Created!");
+      
+      // Close the dialog and reset the form
+      setDialogOpen(false);
+      resetForm();
     }
   };
 
   return (
     <div>
-      {/* Dialog component for the budget creation modal */}
-      <Dialog>
-        {/* Trigger the dialog when the user clicks on this section */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <div
             className="bg-slate-100 p-10 rounded-2xl
             items-center flex flex-col border-2 border-dashed
             cursor-pointer hover:shadow-md"
           >
-            <h2 className="text-3xl">+</h2> {/* "+" icon for creating a new budget */}
-            <h2>Create New Budget</h2> {/* Title of the section */}
+            <h2 className="text-3xl">+</h2>
+            <h2>Create New Budget</h2>
           </div>
         </DialogTrigger>
-        {/* Modal content */}
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Budget</DialogTitle> {/* Modal header */}
+            <DialogTitle>Create New Budget</DialogTitle>
             <DialogDescription>
               <div className="mt-5">
-                {/* Button to toggle emoji picker visibility */}
                 <Button
                   variant="outline"
                   className="text-lg"
-                  onClick={() => setOpenEmojiPicker(!openEmojiPicker)} // Toggle emoji picker
+                  onClick={() => setOpenEmojiPicker(!openEmojiPicker)}
                 >
-                  {emojiIcon} {/* Display selected emoji */}
+                  {emojiIcon}
                 </Button>
-                {/* Emoji picker dialog */}
                 <div className="absolute z-20">
                   <EmojiPicker
-                    open={openEmojiPicker} // Controlled visibility of the picker
+                    open={openEmojiPicker}
                     onEmojiClick={(e) => {
-                      setEmojiIcon(e.emoji); // Set the selected emoji
-                      setOpenEmojiPicker(false); // Close the picker after selection
+                      setEmojiIcon(e.emoji);
+                      setOpenEmojiPicker(false);
                     }}
                   />
                 </div>
-                {/* Budget name input field */}
                 <div className="mt-2">
                   <h2 className="text-black font-medium my-1">Budget Name</h2>
                   <Input
-                    placeholder="e.g. Home Decor" // Placeholder text
-                    onChange={(e) => setName(e.target.value)} // Update name state
+                    placeholder="e.g. Home Decor"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
-                {/* Budget amount input field */}
                 <div className="mt-2">
                   <h2 className="text-black font-medium my-1">Budget Amount</h2>
                   <Input
-                    type="number" // Only allows numbers
-                    placeholder="e.g. 5000$" // Placeholder text
-                    onChange={(e) => setAmount(e.target.value)} // Update amount state
+                    placeholder="e.g. 5000"
+                    value={amount}
+                    onChange={(e) => validateAmount(e.target.value)}
                   />
+                  {amountError && (
+                    <div className="flex items-center text-red-500 mt-1 text-sm">
+                      <AlertCircle className="h-4 w-4 mr-1" />
+                      Please enter a valid number for the budget amount
+                    </div>
+                  )}
                 </div>
               </div>
             </DialogDescription>
           </DialogHeader>
-          {/* Modal footer */}
           <DialogFooter className="sm:justify-start">
-            {/* Close button */}
-            <DialogClose asChild>
-              <Button
-                disabled={!(name && amount)} // Disable the button if name or amount is missing
-                onClick={() => onCreateBudget()} // Call onCreateBudget function on click
-                className="mt-5 w-full rounded-full"
-              >
-                Create Budget {/* Button text */}
-              </Button>
-            </DialogClose>
+            <Button
+              disabled={!name} // Only disable if name is missing, allow any amount input
+              onClick={() => onCreateBudget()} // Validation happens inside this function
+              className="mt-5 w-full rounded-full"
+            >
+              Create Budget
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -129,4 +159,4 @@ function CreateBudget({ refreshData }) {
   );
 }
 
-export default CreateBudget; 
+export default CreateBudget;
