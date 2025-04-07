@@ -43,6 +43,8 @@ const getFinancialAdvice = async (totalBudget, totalIncome, totalSpend) => {
       - Maintains an encouraging but professional tone
 
       Avoid generic advice like "spend less" or "save more" - instead, provide specific, quantifiable recommendations based on the current financial situation.
+      Make it very useful to the user, and encourage them to take action. Talk to them like you are a financial advisor, a human, someone who is friendly and confortable to 
+      talk to.
       
     `;
 

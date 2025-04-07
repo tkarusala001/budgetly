@@ -157,7 +157,7 @@ Please provide a helpful, specific, and concise answer based on the Budgetly app
         >
           <Bot size={32} className="mb-0.5" />
           <span className="text-[12px] text-center leading-tight">
-            Talk to<br />BudgetlyAI
+            BudgetlyAI
           </span>
         </Button>
       </div>
