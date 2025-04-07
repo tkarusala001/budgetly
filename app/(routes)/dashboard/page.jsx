@@ -79,7 +79,7 @@ function Dashboard() {
     const result = await db       
       .select({         
         id: Expenses.id,         
-        name: Expenses.name,         
+        name: Expenses.name,
         amount: Expenses.amount,         
         createdAt: Expenses.createdAt,       
       })       
