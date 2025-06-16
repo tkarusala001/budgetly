@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Trash2 } from "lucide-react";
+import { Trash2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -24,6 +24,9 @@ function BudgetItem({ budget, onDelete }) {
     return perc > 100 ? 100 : perc.toFixed(2);
   };
 
+  const remainingAmount = budget.amount - budget.totalSpend;
+  const isOverBudget = remainingAmount < 0;
+
   const handleDelete = async () => {
     try {
       // First delete all associated expenses
@@ -44,12 +47,22 @@ function BudgetItem({ budget, onDelete }) {
 
   return (
     <div className="relative">
+      {/* Overspending Alert Badge */}
+      {isOverBudget && (
+        <div className="absolute -top-2 -right-2 z-10">
+          <div className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg animate-pulse">
+            <AlertTriangle className="h-3 w-3" />
+            OVER BUDGET!
+          </div>
+        </div>
+      )}
+
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button 
             variant="ghost" 
             size="icon"
-            className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-red-100"
+            className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-red-100 z-20"
           >
             <Trash2 className="h-4 w-4 text-red-500" />
           </Button>
@@ -75,7 +88,9 @@ function BudgetItem({ budget, onDelete }) {
       </AlertDialog>
 
       <Link href={"/dashboard/expenses/" + budget?.id}>
-        <div className="p-5 border rounded-2xl hover:shadow-md cursor-pointer h-[170px]">
+        <div className={`p-5 border rounded-2xl hover:shadow-md cursor-pointer h-[170px] ${
+          isOverBudget ? 'border-red-300 bg-red-50' : ''
+        }`}>
           <div className="flex gap-2 items-center justify-between">
             <div className="flex gap-2 items-center">
               <h2 className="text-2xl p-3 px-4 bg-slate-100 rounded-full">
@@ -94,18 +109,34 @@ function BudgetItem({ budget, onDelete }) {
               <h2 className="text-xs text-slate-400">
                 ${budget.totalSpend ? budget.totalSpend : 0} Spend
               </h2>
-              <h2 className="text-xs text-slate-400">
-                ${budget.amount - budget.totalSpend} Remaining
+              <h2 className={`text-xs font-medium ${
+                isOverBudget ? 'text-red-600 font-bold' : 'text-slate-400'
+              }`}>
+                {isOverBudget ? 
+                  `$${Math.abs(remainingAmount)} Over Budget!` : 
+                  `$${remainingAmount} Remaining`
+                }
               </h2>
             </div>
             <div className="w-full bg-slate-300 h-2 rounded-full">
               <div
-                className="bg-primary h-2 rounded-full"
+                className={`h-2 rounded-full ${
+                  isOverBudget ? 'bg-red-500' : 'bg-primary'
+                }`}
                 style={{
                   width: `${calculateProgressPerc()}%`,
                 }}
               ></div>
             </div>
+            
+            {/* Additional warning text for overspending */}
+            {isOverBudget && (
+              <div className="mt-2 text-center">
+                <span className="text-xs text-red-600 font-semibold bg-red-100 px-2 py-1 rounded">
+                  ⚠️ Budget Exceeded
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </Link>

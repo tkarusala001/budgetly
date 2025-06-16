@@ -18,6 +18,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Download } from "lucide-react";
 
 function Dashboard() {   
   const { user } = useUser();    // Get user data from Clerk
@@ -91,6 +92,12 @@ function Dashboard() {
     setExpensesList(result);   // Update state with expenses list
   };    
 
+  // Placeholder function for CSV export - to be implemented later
+  const handleExportToCSV = () => {
+    // TODO: Implement CSV export functionality
+    console.log("Export to CSV clicked - functionality to be implemented");
+  };
+
   // Render the appropriate chart based on user selection (budget or income/expenses)
   const renderChart = () => {
     if (showBudgetChart) {
@@ -111,10 +118,24 @@ function Dashboard() {
 
   return (     
     <div className="p-8 bg-gray-50">       
-      <h2 className="font-bold text-4xl">Hi {user?.fullName}</h2>       {/* Display user's name */}
-      <p className="text-gray-500">         
-        Manage and check your finances below!       {/* Info about managing finances */}
-      </p>        
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h2 className="font-bold text-4xl">Hi {user?.fullName}</h2>       {/* Display user's name */}
+          <p className="text-gray-500">         
+            Manage and check your finances below!       {/* Info about managing finances */}
+          </p>
+        </div>
+        
+        {/* Export to CSV Button */}
+        <button 
+          onClick={handleExportToCSV}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-300 shadow-md hover:shadow-lg"
+        >
+          <Download className="h-4 w-4" />
+          Export to CSV
+        </button>
+      </div>
+      
       <CardInfo budgetList={budgetList} incomeList={incomeList} />       {/* Show card info with budget and income lists */}
       <div className="grid grid-cols-1 lg:grid-cols-3 mt-6 gap-5">         
         <div className="lg:col-span-2">
@@ -125,6 +146,7 @@ function Dashboard() {
             >
               {showBudgetChart ? 'Show Income vs Expenses' : 'Show Budget vs Expenses'}  {/* Button text */}
             </button>
+            
             
             {!showBudgetChart && (
               <Select 
@@ -211,4 +233,4 @@ function Dashboard() {
   ); 
 }  
 
-export default Dashboard; 
+export default Dashboard;
