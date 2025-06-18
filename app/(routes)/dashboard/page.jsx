@@ -92,10 +92,105 @@ function Dashboard() {
     setExpensesList(result);   // Update state with expenses list
   };    
 
-  // Placeholder function for CSV export - to be implemented later
+  // Function to export all financial data to CSV
   const handleExportToCSV = () => {
-    // TODO: Implement CSV export functionality
-    console.log("Export to CSV clicked - functionality to be implemented");
+    console.log("Export button clicked"); // Add this line
+    try {
+      // Helper function to convert data to CSV format
+      const convertToCSV = (data, headers) => {
+        const csvHeaders = headers.join(',');
+        const csvRows = data.map(row => 
+          headers.map(header => {
+            const value = row[header];
+            // Handle values that might contain commas or quotes
+            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value || '';
+          }).join(',')
+        );
+        return [csvHeaders, ...csvRows].join('\n');
+      };
+
+      // Prepare budget data
+      const budgetHeaders = ['Budget Name', 'Icon', 'Amount', 'Total Spend', 'Total Items', 'Remaining'];
+      const budgetData = budgetList.map(budget => ({
+        'Budget Name': budget.name,
+        'Icon': budget.icon,
+        'Amount': budget.amount,
+        'Total Spend': budget.totalSpend || 0,
+        'Total Items': budget.totalItem || 0,
+        'Remaining': budget.amount - (budget.totalSpend || 0),
+      }));
+
+      // Prepare expenses data
+      const expenseHeaders = ['Expense Name', 'Amount', 'Created Date'];
+      const expenseData = expensesList.map(expense => ({
+        'Expense Name': expense.name,
+        'Amount': expense.amount,
+        'Created Date': expense.createdAt ? new Date(expense.createdAt).toLocaleDateString() : ''
+      }));
+
+      // Prepare income data
+      const incomeHeaders = ['Income Name', 'Amount', 'Icon'];
+      const incomeData = incomeList.map(income => ({
+        'Income Name': income.name,
+        'Amount': income.amount,
+        'Icon': income.icon,
+      }));
+
+      // Create comprehensive CSV content
+      let csvContent = '';
+      
+      // Add summary section
+      csvContent += 'FINANCIAL SUMMARY\n';
+      csvContent += `Export Date,${new Date().toLocaleDateString()}\n`;
+      csvContent += `User,${user?.fullName || 'Unknown'}\n`;
+      csvContent += `Total Budgets,${budgetList.length}\n`;
+      csvContent += `Total Expenses,${expensesList.length}\n`;
+      csvContent += `Total Income Streams,${incomeList.length}\n`;
+      csvContent += '\n';
+
+      // Add budgets section
+      if (budgetData.length > 0) {
+        csvContent += 'BUDGETS\n';
+        csvContent += convertToCSV(budgetData, budgetHeaders);
+        csvContent += '\n\n';
+      }
+
+      // Add expenses section
+      if (expenseData.length > 0) {
+        csvContent += 'EXPENSES\n';
+        csvContent += convertToCSV(expenseData, expenseHeaders);
+        csvContent += '\n\n';
+      }
+
+      // Add income section
+      if (incomeData.length > 0) {
+        csvContent += 'INCOME STREAMS\n';
+        csvContent += convertToCSV(incomeData, incomeHeaders);
+        csvContent += '\n\n';
+      }
+
+      // Create and download the file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `financial_data_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      console.log('CSV export completed successfully');
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      alert('Error exporting data. Please try again.');
+    }
   };
 
   // Render the appropriate chart based on user selection (budget or income/expenses)
