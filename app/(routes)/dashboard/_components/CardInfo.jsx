@@ -106,7 +106,7 @@ function CardInfo({ budgetList, incomeList }) {
               <div>
                 <h2 className="text-sm">Account Balance</h2>
                 <h2 className="font-bold text-2xl">
-                  ${formatNumber(accountBalance)}
+                  ${accountBalance.toLocaleString()}
                 </h2>
               </div>
               <Briefcase className="bg-blue-400 p-3 h-12 w-12 rounded-full text-white" />
