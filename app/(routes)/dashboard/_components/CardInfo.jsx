@@ -79,7 +79,7 @@ function CardInfo({ budgetList, incomeList }) {
               <div>
                 <h2 className="text-sm">Total Budget</h2>
                 <h2 className="font-bold text-2xl">
-                  ${formatNumber(totalBudget)}
+                ${totalBudget.toLocaleString()}
                 </h2>
               </div>
               <PiggyBank className="bg-blue-400 p-3 h-12 w-12 rounded-full text-white" />
@@ -88,7 +88,7 @@ function CardInfo({ budgetList, incomeList }) {
               <div>
                 <h2 className="text-sm">Total Expenses</h2>
                 <h2 className="font-bold text-2xl">
-                  ${formatNumber(totalSpend)}
+                ${totalSpend.toLocaleString()}
                 </h2>
               </div>
               <ReceiptText className="bg-blue-400 p-3 h-12 w-12 rounded-full text-white" />
@@ -97,7 +97,7 @@ function CardInfo({ budgetList, incomeList }) {
               <div>
                 <h2 className="text-sm">Sum of Income Streams</h2>
                 <h2 className="font-bold text-2xl">
-                  ${formatNumber(totalIncome)}
+                ${totalIncome.toLocaleString()}
                 </h2>
               </div>
               <CircleDollarSign className="bg-blue-400 p-3 h-12 w-12 rounded-full text-white" />
