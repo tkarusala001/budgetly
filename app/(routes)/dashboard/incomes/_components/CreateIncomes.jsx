@@ -62,32 +62,35 @@ function CreateIncomes({ refreshData }) {
    * Function to create a new income entry
    */
   const onCreateIncomes = async () => {
-    // Check if amount is a valid number
+    // Validate that the amount is a number and not empty
     if (isNaN(amount) || amount === "") {
       setAmountError(true);
       return;
     }
-     
-    const result = await db       
-      .insert(Incomes)       
-      .values({         
-        name: name,         
-        amount: Number(amount),         
-        createdBy: user?.primaryEmailAddress?.emailAddress,         
+  
+    /*
+      Insert a new income source into the database with user inputs:
+      name, amount, emoji icon, date, and user email
+    */
+    const result = await db
+      .insert(Incomes)
+      .values({
+        name: name,
+        amount: Number(amount),
+        createdBy: user?.primaryEmailAddress?.emailAddress,
         icon: emojiIcon,
-        date: date
-      })       
-      .returning({ insertedId: Incomes.id });      
-
-    if (result) {       
-      refreshData();  // Trigger refresh of income data
-      toast("New Income Source Created!");
-      
-      // Close the dialog and reset the form
-      setDialogOpen(false);
-      resetForm();
-    }   
-  };   
+        date: date,
+      })
+      .returning({ insertedId: Incomes.id }); // Return the ID of the new income entry
+  
+    // If successful, update UI and reset form
+    if (result) {
+      refreshData();                  // Refresh income data on the page
+      toast("New Income Source Created!"); // Show success message
+      setDialogOpen(false);          // Close the dialog
+      resetForm();                   // Clear input fields
+    }
+  };  
 
   return (     
     <div>       
@@ -96,9 +99,11 @@ function CreateIncomes({ refreshData }) {
           <div             
             className="bg-slate-100 p-10 rounded-2xl             
             items-center flex flex-col border-2 border-dashed             
-            cursor-pointer hover:shadow-md"           
+            cursor-pointer hover:shadow-md"           //here on below is the UI for creating an income
           >             
-            <h2 className="text-3xl">+</h2>             
+      
+            <h2 className="text-3xl">+</h2>       
+                  
             <h2>Create New Income Source</h2>           
           </div>         
         </DialogTrigger>         
